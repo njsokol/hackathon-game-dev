@@ -10,7 +10,9 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: "Output Management",
+            title: "DDS Hackathon",
+            template: "src/index.html",
+            inject: false
         }),
     ],
     output: {

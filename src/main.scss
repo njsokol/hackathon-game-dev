@@ -1,3 +1,16 @@
+@use "reset.scss";
+
+html, body {
+    height: 100%;
+}
+
 body {
-    background-color: blue;
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#game {
+    background-color: #eee;
 }
