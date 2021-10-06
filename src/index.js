@@ -40,34 +40,44 @@ import "./main.scss";
         };
     }
 
-    class Bullet {
-        constructor(shooter, x, y) {
-            this.dx = (x - shooter.x);
-            this.dy = (y - shooter.y);
-            this.mag = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
+
+    class Asteroid {
+        constructor(x, y) {
             this.speed = 5;
-            this.vx = (this.dx / this.mag) * this.speed;
-            this.vy = (this.dy / this.mag) * this.speed;
-            this.x = shooter.x;
-            this.y = shooter.y;
-            this.width = 5;
-            this.height = 5;
-            this.color = "green";
+            this.x = x;
+            this.y = y;
+            this.width = 20;
+            this.height = 20;
+            this.color = "blue";
+            this.speed = 10;
 
             this.draw();
         }
 
         draw = () => {
+            if (this.y > gameCanvas.height) this.remove();
+
+            
             gameCtx.beginPath();
-            gameCtx.rect(this.x += this.vx, this.y += this.vy, this.width, this.height);
+            gameCtx.rect(this.x, this.y += this.speed, this.width, this.height);
             gameCtx.closePath();
             gameCtx.fillStyle = this.color;
             gameCtx.fill();
+        }
+
+        remove = () => {
+            for (let i = 0; i < asteroids.length; i++) {
+                if (asteroids[i].id === this.id) {
+                    asteroids.splice(i, 1);
+                    return;
+                }
+            }
         }
     }
 
     class Player {
         constructor() {
+            this.id = Date.now();
             this.height = 10;
             this.width = 10;
             this.x = gameWidth / 2;
@@ -84,31 +94,37 @@ import "./main.scss";
         };
 
         draw = () => {
-            // clear canvas
             gameCtx.beginPath();
             gameCtx.rect(this.x, this.y, this.width, this.height);
             gameCtx.closePath();
             gameCtx.fillStyle = this.color;
             gameCtx.fill();
         };
+
+       
     }
 
     // Create our player
     const p1 = new Player();
     const scene = new Scene();
     let keyState = {};
-    let bullets = [];
+    let asteroids = [];
 
     let gameloop;
 
+    setInterval(() => {
+        asteroids.push(new Asteroid(Math.random() * gameCanvas.width, 0));
+    }, 100);
+
     // Run the gameloop
     const run = () => {
+
         gameloop = requestAnimationFrame(run);
         gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         move();
         p1.draw();
-        for (var i = 0; i < bullets.length; i++) {
-            bullets[i].draw();
+        for (var i = 0; i < asteroids.length; i++) {
+            asteroids[i].draw();
         }
     };
 
@@ -125,6 +141,5 @@ import "./main.scss";
     window.addEventListener("keydown", (e) => (keyState[e.key] = true), true);
     window.addEventListener("keyup", (e) => (keyState[e.key] = false), true);
     window.addEventListener("blur", () => keyState = {});
-    window.addEventListener("click", (e) =>  bullets.push(new Bullet(p1, e.clientX, e.clientY)));
 
 })();
