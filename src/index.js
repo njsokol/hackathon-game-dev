@@ -1,4 +1,5 @@
 import "./main.scss";
+import Fish from "./fish.png";
 
 (() => {
     const gameHeight = window.innerHeight;
@@ -7,8 +8,15 @@ import "./main.scss";
     const gameCanvas = document.getElementById("game");
     const gameCtx = gameCanvas.getContext("2d");
 
+    const health = document.querySelector(".health-bar");
+
     gameCanvas.width = gameWidth;
     gameCanvas.height = gameHeight;
+
+    var myImage = new Image();
+    myImage.src = Fish;
+    const fish = document.body.appendChild(myImage);
+
 
     class Scene {
         static canvas;
@@ -36,34 +44,38 @@ import "./main.scss";
                 this.ctx.fillStyle = "white";
                 this.ctx.globalAlpha = 0.5;
                 this.ctx.fill();
+                
             }
         };
     }
-
-
+    
+    const distanceBetweenTwoEntities = (e1, e2) => {
+        let limit = 2;
+        return (Math.abs(e1.x - e2.x) || Math.abs(e1.y - e2.y)) <= limit;
+    };
+    
     class Asteroid {
         constructor(x, y) {
             this.speed = 5;
-            this.x = x;
+            this.x = x; 
             this.y = y;
             this.width = 20;
             this.height = 20;
             this.color = "blue";
             this.speed = 10;
-
+            
             this.draw();
+            
+            
         }
-
+        
         draw = () => {
             if (this.y > gameCanvas.height) this.remove();
 
-            
-            gameCtx.beginPath();
-            gameCtx.rect(this.x, this.y += this.speed, this.width, this.height);
-            gameCtx.closePath();
-            gameCtx.fillStyle = this.color;
-            gameCtx.fill();
-        }
+            this.y += this.speed;
+
+            gameCtx.drawImage(fish, this.x, this.y);
+        };
 
         remove = () => {
             for (let i = 0; i < asteroids.length; i++) {
@@ -72,7 +84,7 @@ import "./main.scss";
                     return;
                 }
             }
-        }
+        };
     }
 
     class Player {
@@ -84,6 +96,7 @@ import "./main.scss";
             this.y = gameHeight / 2;
             this.color = "red";
             this.speed = 10;
+            this.health = 100;
         }
 
         move = (dir) => {
@@ -91,6 +104,14 @@ import "./main.scss";
             else if (dir === "right") this.x += this.speed;
             else if (dir === "up") this.y -= this.speed;
             else if (dir === "down") this.y += this.speed;
+
+            for (let i = 0; i < asteroids.length; i++) {
+                if (distanceBetweenTwoEntities(this, asteroids[i])) {
+                    asteroids[i].remove();
+                    p1.health -= 10;
+                    health.style.width = `${p1.health}%`;
+                }
+            }
         };
 
         draw = () => {
@@ -100,8 +121,14 @@ import "./main.scss";
             gameCtx.fillStyle = this.color;
             gameCtx.fill();
         };
+    }
 
-       
+    const checkGameEnd = () => {
+        if (p1.health <= 0) {
+            console.log("END");
+            cancelAnimationFrame(gameloop);
+            gameOver = true;
+        }
     }
 
     // Create our player
@@ -111,21 +138,24 @@ import "./main.scss";
     let asteroids = [];
 
     let gameloop;
+    let gameOver = false;
 
     setInterval(() => {
+        if (gameOver) return;
         asteroids.push(new Asteroid(Math.random() * gameCanvas.width, 0));
     }, 100);
 
     // Run the gameloop
     const run = () => {
-
         gameloop = requestAnimationFrame(run);
+        checkGameEnd();
         gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         move();
         p1.draw();
         for (var i = 0; i < asteroids.length; i++) {
             asteroids[i].draw();
         }
+        
     };
 
     requestAnimationFrame(run);
@@ -140,6 +170,7 @@ import "./main.scss";
 
     window.addEventListener("keydown", (e) => (keyState[e.key] = true), true);
     window.addEventListener("keyup", (e) => (keyState[e.key] = false), true);
-    window.addEventListener("blur", () => keyState = {});
-
+    window.addEventListener("blur", () => {
+        keyState = {}
+    });
 })();

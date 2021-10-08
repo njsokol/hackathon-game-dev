@@ -20,3 +20,22 @@ canvas {
 #scene {
     background-color: #000;
 }
+
+.health-bar {
+    height: 20px;
+    width: 100%;
+    background-color: green;
+    z-index: 3;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.health-bar-bg {
+    height: 20px;
+    width: 100%;
+    background-color: red;
+    z-index: 2;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
